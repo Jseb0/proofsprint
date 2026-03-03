@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ProofSprint
 
-## Getting Started
+Performance-based technical hiring platform.
 
-First, run the development server:
+ProofSprint is an early-stage SaaS platform designed to match candidates and companies through real performance signals instead of traditional CV filtering.
 
-```bash
+---
+
+## 🚀 Tech Stack
+
+### Frontend
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS
+
+### Backend
+- Supabase (Authentication + PostgreSQL)
+- Row Level Security (RLS)
+- Role-based access control
+
+### Database
+- PostgreSQL relational schema
+- UUID primary keys
+- Foreign key relationships
+- SQL schema versioned in /db/schema.sql
+
+---
+
+## 🏗 Architecture
+
+The project follows a structured separation of concerns:
+
+- app/ → Frontend routes (Next.js App Router)
+- lib/ → Supabase client configuration
+- db/schema.sql → Production database schema (version controlled)
+- Supabase → Authentication and database layer
+
+---
+
+## 📊 Core Entities
+
+### profiles
+Stores user information and role:
+- id (UUID, linked to auth.users)
+- email
+- role (candidate | company)
+- created_at
+
+### jobs
+Job listings created by companies:
+- id (UUID)
+- company_id (references profiles)
+- title
+- description
+- created_at
+
+### applications
+Candidate applications to jobs:
+- id (UUID)
+- job_id (references jobs)
+- candidate_id (references profiles)
+- status
+- created_at
+
+---
+
+## 🔐 Authentication & Authorization
+
+- Email + Password authentication
+- Role-based profile creation
+- Supabase Row Level Security policies
+- Users can only access their own data
+- Protected dashboard route
+
+Role enforcement ensures:
+- Candidates and companies are logically separated
+- Users can only read/write their own profile
+- Foreign key relationships maintain integrity
+
+---
+
+## 🗄 Database Schema
+
+The production database schema is version-controlled in:
+
+db/schema.sql
+
+The schema includes:
+- UUID primary keys
+- Foreign key constraints
+- Role validation constraints
+- Cascading deletes
+- Relational structure between users, jobs, and applications
+
+---
+
+## 🧪 Running Locally
+
+Install dependencies:
+
+npm install
+
+Start the development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 📌 Current Status
 
-To learn more about Next.js, take a look at the following resources:
+- Authentication system complete
+- Role-based user system implemented
+- Protected dashboard
+- Relational database schema designed
+- SQL schema version controlled
+- Supabase RLS policies configured
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎯 Next Milestones
 
-## Deploy on Vercel
+- Company job posting functionality
+- Candidate application submission
+- Role-specific dashboard views
+- Interview challenge system
+- Admin moderation layer
+- Production deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 💡 Vision
+
+ProofSprint aims to replace resume-based filtering with performance-based hiring signals. The platform is being developed as a scalable SaaS architecture with structured separation between frontend, backend services, and database schema.
