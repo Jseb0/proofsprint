@@ -6,22 +6,35 @@ import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
     const router = useRouter();
+
     const [email, setEmail] = useState<string | null>(null);
+    const [role, setRole] = useState<string | null>(null);
 
     useEffect(() => {
-        const checkSession = async () => {
+        const loadUser = async () => {
             const {
                 data: { session },
             } = await supabase.auth.getSession();
 
             if (!session) {
                 router.push("/login");
-            } else {
-                setEmail(session.user.email ?? null);
+                return;
+            }
+
+            setEmail(session.user.email ?? null);
+
+            const { data: profile } = await supabase
+                .from("profiles")
+                .select("role")
+                .eq("id", session.user.id)
+                .single();
+
+            if (profile) {
+                setRole(profile.role);
             }
         };
 
-        checkSession();
+        loadUser();
     }, [router]);
 
     const handleLogout = async () => {
@@ -32,7 +45,11 @@ export default function Dashboard() {
     return (
         <main className="min-h-screen flex items-center justify-center bg-black text-white">
             <div className="bg-zinc-900 p-8 rounded-lg text-center">
-                <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+                <h1 className="text-2xl font-bold mb-4">
+                    {role === "employer"
+                        ? "Employer Dashboard"
+                        : "Candidate Dashboard"}
+                </h1>
 
                 {email && (
                     <p className="mb-4 text-gray-400">

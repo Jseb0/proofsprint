@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 export default function SignUp() {
     const router = useRouter();
 
+    const [role, setRole] = useState("candidate");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
@@ -17,7 +18,6 @@ export default function SignUp() {
         setLoading(true);
         setMessage("");
 
-        // 1️⃣ Create auth user
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
@@ -31,7 +31,6 @@ export default function SignUp() {
 
         const user = data.user;
 
-        // 2️⃣ Create profile row linked to auth user
         if (user) {
             const { error: profileError } = await supabase
                 .from("profiles")
@@ -39,7 +38,7 @@ export default function SignUp() {
                     {
                         id: user.id,
                         email: user.email,
-                        role: "candidate",
+                        role: role,
                     },
                 ]);
 
@@ -51,10 +50,7 @@ export default function SignUp() {
             }
         }
 
-        setMessage("Account created successfully!");
         setLoading(false);
-
-        // 3️⃣ Redirect to login
         router.push("/login");
     };
 
@@ -65,6 +61,15 @@ export default function SignUp() {
                 className="flex flex-col gap-4 bg-zinc-900 p-8 rounded-lg"
             >
                 <h1 className="text-2xl font-bold">Sign Up</h1>
+
+                <select
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="p-2 rounded bg-black border border-gray-600"
+                >
+                    <option value="candidate">Candidate</option>
+                    <option value="employer">Employer</option>
+                </select>
 
                 <input
                     type="email"

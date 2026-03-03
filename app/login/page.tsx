@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 export default function Login() {
     const router = useRouter();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
