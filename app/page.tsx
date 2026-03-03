@@ -1,12 +1,27 @@
+"use client";
+
+import { useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+
 export default function Home() {
-  return (
-      <main className="min-h-screen flex items-center justify-center bg-black text-white">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold">ProofSprint</h1>
-          <p className="mt-4 text-gray-400">
-            Performance-based technical hiring.
-          </p>
-        </div>
-      </main>
-  );
+    const router = useRouter();
+
+    useEffect(() => {
+        const checkSession = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+
+            if (session) {
+                router.push("/dashboard");
+            } else {
+                router.push("/login");
+            }
+        };
+
+        checkSession();
+    }, [router]);
+
+    return null;
 }

@@ -4,67 +4,39 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-export default function SignUp() {
+export default function Login() {
     const router = useRouter();
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleSignup = async (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setMessage("");
 
-        // 1️⃣ Create auth user
-        const { data, error } = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
         });
 
         if (error) {
             setMessage(error.message);
-            setLoading(false);
-            return;
+        } else {
+            router.push("/dashboard");
         }
 
-        const user = data.user;
-
-        // 2️⃣ Create profile row linked to auth user
-        if (user) {
-            const { error: profileError } = await supabase
-                .from("profiles")
-                .insert([
-                    {
-                        id: user.id,
-                        email: user.email,
-                        role: "candidate",
-                    },
-                ]);
-
-            if (profileError) {
-                console.error(profileError);
-                setMessage("Profile creation failed.");
-                setLoading(false);
-                return;
-            }
-        }
-
-        setMessage("Account created successfully!");
         setLoading(false);
-
-        // 3️⃣ Redirect to login
-        router.push("/login");
     };
 
     return (
         <main className="min-h-screen flex items-center justify-center bg-black text-white">
             <form
-                onSubmit={handleSignup}
+                onSubmit={handleLogin}
                 className="flex flex-col gap-4 bg-zinc-900 p-8 rounded-lg"
             >
-                <h1 className="text-2xl font-bold">Sign Up</h1>
+                <h1 className="text-2xl font-bold">Login</h1>
 
                 <input
                     type="email"
@@ -89,7 +61,7 @@ export default function SignUp() {
                     disabled={loading}
                     className="bg-white text-black p-2 rounded font-semibold"
                 >
-                    {loading ? "Creating..." : "Create Account"}
+                    {loading ? "Logging in..." : "Login"}
                 </button>
 
                 {message && <p className="text-sm text-gray-400">{message}</p>}
