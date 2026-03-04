@@ -14,13 +14,27 @@ create table if not exists public.profiles (
 -- =========================
 -- JOB POSTS TABLE
 -- =========================
+create extension if not exists pgcrypto;
+
 create table if not exists public.jobs (
-                                           id uuid primary key default uuid_generate_v4(),
-    company_id uuid references public.profiles(id) on delete cascade,
+                                           id uuid primary key default gen_random_uuid(),
+    company_id uuid not null,
     title text not null,
-    description text,
-    created_at timestamp with time zone default now()
+    description text not null,
+    created_at timestamptz not null default now(),
+
+    constraint jobs_company_id_fkey
+    foreign key (company_id)
+    references public.profiles (id)
+    on update cascade
+    on delete cascade
     );
+
+create index if not exists jobs_company_id_idx
+    on public.jobs (company_id);
+
+create index if not exists jobs_created_at_idx
+    on public.jobs (created_at desc);
 
 -- =========================
 -- APPLICATIONS TABLE

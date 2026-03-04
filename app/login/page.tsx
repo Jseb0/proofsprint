@@ -24,9 +24,18 @@ export default function Login() {
 
         if (error) {
             setMessage(error.message);
-        } else {
-            router.push("/dashboard");
+            setLoading(false);
+            return;
         }
+
+        // Important: give Supabase time to persist cookie
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        // Force server refresh so middleware sees session
+        router.refresh();
+
+        // Then navigate
+        router.push("/dashboard");
 
         setLoading(false);
     };
@@ -65,7 +74,9 @@ export default function Login() {
                     {loading ? "Logging in..." : "Login"}
                 </button>
 
-                {message && <p className="text-sm text-gray-400">{message}</p>}
+                {message && (
+                    <p className="text-sm text-red-400 text-center">{message}</p>
+                )}
             </form>
         </main>
     );

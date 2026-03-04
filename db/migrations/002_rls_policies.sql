@@ -21,15 +21,39 @@ with check (auth.uid() = id);
 -- JOBS POLICIES
 -- =========================
 
-create policy "Companies can insert jobs"
-on public.jobs
-for insert
-with check (auth.uid() = company_id);
+alter table public.jobs enable row level security;
 
-create policy "Anyone can view jobs"
+-- Public can read job listings
+drop policy if exists "Public read jobs" on public.jobs;
+create policy "Public read jobs"
 on public.jobs
 for select
-                             using (true);
+                    to public
+                    using (true);
+
+-- Authenticated employers can insert jobs for themselves
+drop policy if exists "Employers insert own jobs" on public.jobs;
+create policy "Employers insert own jobs"
+on public.jobs
+for insert
+to authenticated
+with check (auth.uid() = company_id);
+
+-- Optional: employers can update/delete only their own jobs
+drop policy if exists "Employers update own jobs" on public.jobs;
+create policy "Employers update own jobs"
+on public.jobs
+for update
+                                to authenticated
+                                using (auth.uid() = company_id)
+    with check (auth.uid() = company_id);
+
+drop policy if exists "Employers delete own jobs" on public.jobs;
+create policy "Employers delete own jobs"
+on public.jobs
+for delete
+to authenticated
+using (auth.uid() = company_id);
 
 -- =========================
 -- APPLICATIONS POLICIES
