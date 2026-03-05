@@ -1,8 +1,8 @@
-import { createServerClient } from "@supabase/ssr"
-import { cookies } from "next/headers"
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-export function createSupabaseServerClient() {
-    const cookieStore = cookies()
+export async function createSupabaseServerClient() {
+    const cookieStore = await cookies();
 
     return createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,15 +10,14 @@ export function createSupabaseServerClient() {
         {
             cookies: {
                 getAll() {
-                    return cookieStore.getAll()
+                    return cookieStore.getAll();
                 },
                 setAll(cookiesToSet) {
-                    // Next.js route handlers allow setting cookies like this
                     cookiesToSet.forEach(({ name, value, options }) => {
-                        cookieStore.set(name, value, options)
-                    })
+                        cookieStore.set(name, value, options);
+                    });
                 },
             },
         }
-    )
+    );
 }

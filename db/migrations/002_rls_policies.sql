@@ -2,6 +2,7 @@
 alter table public.profiles enable row level security;
 alter table public.jobs enable row level security;
 alter table public.applications enable row level security;
+alter table public.submissions enable row level security;
 
 -- =========================
 -- PROFILES POLICIES
@@ -67,6 +68,38 @@ with check (auth.uid() = candidate_id);
 create policy "Users can view their applications"
 on public.applications
 for select
-                      using (
-                      auth.uid() = candidate_id
-                      );
+                      using (auth.uid() = candidate_id);
+
+-- =========================
+-- SUBMISSIONS POLICIES
+-- =========================
+
+alter table public.submissions enable row level security;
+
+drop policy if exists "Candidates insert own submissions" on public.submissions;
+create policy "Candidates insert own submissions"
+on public.submissions
+for insert
+to authenticated
+with check (auth.uid() = candidate_id);
+
+drop policy if exists "Candidates read own submissions" on public.submissions;
+create policy "Candidates read own submissions"
+on public.submissions
+for select
+                                to authenticated
+                                using (auth.uid() = candidate_id);
+
+drop policy if exists "Employers read submissions for their jobs" on public.submissions;
+create policy "Employers read submissions for their jobs"
+on public.submissions
+for select
+                    to authenticated
+                    using (
+                    exists (
+                    select 1
+                    from public.jobs j
+                    where j.id = submissions.job_id
+                    and j.company_id = auth.uid()
+                    )
+                    );
